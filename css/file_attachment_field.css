@@ -423,6 +423,14 @@ button.process {
   float:none;
   clear:both;
 }
+.dz-processing .check-holder,
+.dz-error .check-holder {
+	display:none;
+}
+
+.dz-success .check-holder {
+  display : inline;
+}
 
 
 /* mixins */
