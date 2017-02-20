@@ -754,13 +754,11 @@ class FileAttachmentField extends FileField {
         // Checking if field is not supporting uploads (why?)
         if($this->isDisabled() || $this->isReadonly() || !$this->CanUpload()) {
             $error_message = _t('FileAttachmentField.UPLOADFORBIDDEN', 'Files cannot be uploaded via this form at the current time.');
-            SS_Log::log("Forbidden msg: {$error_message}", SS_Log::DEBUG);
             return $this->httpError(403, $error_message);
         }
 
         // No files detected in the upload, this can occur if post_max_size is < the upload size
         if(empty($files) || empty($request->postVar($name))) {
-          SS_Log::log("File upload attempted without any files.", SS_Log::NOTICE);
           $error_message = _t('FileAttachmentField.NOFILESUPLOADED', 'No files were detected in your upload. Please try again later.');
           return $this->httpError(400, $error_message);
         }
@@ -771,7 +769,6 @@ class FileAttachmentField extends FileField {
             $token = $form->getSecurityToken();
             if(!$token->checkRequest($request)) {
               $error_message = _t('FileAttachmentField.BADSECURITYTOKEN', 'Your form session has expired, please reload the form and try again.');
-              SS_Log::log("Invalid token msg: {$error_message}", SS_Log::DEBUG);
               return $this->httpError(400, $error_message);
             }
         }
@@ -795,7 +792,6 @@ class FileAttachmentField extends FileField {
         foreach($tmpFiles as $tmpFile) {
             if($tmpFile['error']) {
                 // http://php.net/manual/en/features.file-upload.errors.php
-                SS_Log::log("FileAttachmentField.PHPERROR:" . $tmpFile['error'], SS_Log::NOTICE);
                 $user_message = $this->getUploadUserError($tmpFile['error']);
                 return $this->httpError(400, $user_message);
             }
@@ -807,13 +803,11 @@ class FileAttachmentField extends FileField {
                 $this->upload->loadIntoFile($tmpFile, $fileObject, $this->getFolderName());
                 $ids[] = $fileObject->ID;
             } catch (Exception $e) {
-                SS_Log::log("FileAttachmentField.GENERALUPLOADERROR:" . $e->getMessage(), SS_Log::NOTICE);
                 $error_message = _t('FileAttachmentField.GENERALUPLOADERROR', 'Sorry, the file could not be saved at the current time, please try again later.');
                 return $this->httpError(400, $error_message);
             }
 
             if ($this->upload->isError()) {
-                SS_Log::log("FileAttachmentField.UPLOADISERROR", SS_Log::NOTICE);
                 return $this->httpError(400, implode(' ' . PHP_EOL, $this->upload->getErrors()));
             }
 
